@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Quiz</string>
+    <string name="question">QUESTION</string>
+    <string name="trueAnswer">TRUE</string>
+    <string name="falseAnswer">FALSE</string>
+    <string name="cheat">CHEAT</string>
+    <string name="answer">answer here</string>
+    <string name="back">Back</string>
+</resources>
