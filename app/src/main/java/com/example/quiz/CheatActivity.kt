@@ -13,20 +13,19 @@ class CheatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cheat)
 
+        val state = intent.getParcelableExtra<AppState>("state")
+        val pts = state?.points // if something went wrong with getting intent
+        val ans = state?.answer
         val answerText : TextView = findViewById(R.id.answer)
-        showAnswer(answerText)
+        answerText.text = ans
 
         backButton.setOnClickListener() {
             goToMainActivity()
         }
     }
 
-    private fun showAnswer(answerText : TextView) {
-        answerText.text = answer.toString().uppercase()
-    }
-
     private fun goToMainActivity() {
-        val intent = Intent(this@CheatActivity, MainActivity::class.java)
-        startActivity(intent) // no idea which is better
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }
