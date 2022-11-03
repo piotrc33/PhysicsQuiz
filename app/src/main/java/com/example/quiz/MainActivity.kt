@@ -1,15 +1,15 @@
 package com.example.quiz
 
-import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.Intent.CATEGORY_BROWSABLE
-import android.content.Intent.EXTRA_INTENT
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
 val questionsAnswers = arrayOf(
     "Is sun bigger than earth?" to true,
@@ -35,46 +35,55 @@ class MainActivity : AppCompatActivity() {
     private val pointsTextView: TextView by lazy{findViewById(R.id.total_points)}
     private val correctAnswersTextView: TextView by lazy{findViewById(R.id.correct_answers)}
     private val cheatsTextView: TextView by lazy{findViewById(R.id.total_cheats)}
+    private var showStats : Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        if(savedInstanceState != null)
+            showStats = savedInstanceState.getBoolean("showStats")
 
-        searchButton.setOnClickListener() {
-            val url = "http://www.google.pl/"
+        if(showStats) {
+            showStats()
+        }
+        else {
+            searchButton.setOnClickListener() {
+                val url = "http://www.google.pl/"
 
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply{
-                addCategory(CATEGORY_BROWSABLE)
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply{
+                    addCategory(CATEGORY_BROWSABLE)
+                }
+
+                if (intent.resolveActivity(packageManager) != null)
+                    startActivity(intent)
             }
 
-            if (intent.resolveActivity(packageManager) != null)
-                startActivity(intent)
-        }
+            questionNAnswer = questionsAnswers[questionNum]
+            questionTextView.text = questionNAnswer.first
+            answer = questionNAnswer.second
 
-        questionNAnswer = questionsAnswers[questionNum]
-        questionTextView.text = questionNAnswer.first
-        answer = questionNAnswer.second
+            var (question, answer) = questionsAnswers[questionNum]
+            questionTextView.text = question
+            // Application adding points only on true button click
+            trueButton.setOnClickListener() {
+                if (answer) {
+                    points += 10
+                    correctAnswers++
+                }
+                answer = nextQuestion()
+            }
+            falseButton.setOnClickListener() {
+                if (!answer) {
+                    points += 10
+                    correctAnswers++
+                }
+                answer = nextQuestion()
+            }
+            cheatButton.setOnClickListener() {
+                goToCheatActivity()
+                points -= 15
+                cheats++
+            }
 
-        var (question, answer) = questionsAnswers[questionNum]
-        questionTextView.text = question
-        // Application adding points only on true button click
-        trueButton.setOnClickListener() {
-            if (answer) {
-                points += 10
-                correctAnswers++
-            }
-            answer = nextQuestion()
-        }
-        falseButton.setOnClickListener() {
-            if (!answer) {
-                points += 10
-                correctAnswers++
-            }
-            answer = nextQuestion()
-        }
-        cheatButton.setOnClickListener() {
-            goToCheatActivity()
-            points -= 15
-            cheats++
         }
     }
 
@@ -88,6 +97,7 @@ class MainActivity : AppCompatActivity() {
             return answer as Boolean
         }
         else {
+            showStats = true
             showStats()
             return false
         }
@@ -96,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun goToCheatActivity() {
         val intent = Intent(this, CheatActivity::class.java)
-            .putExtra("state", AppState(points, correctAnswers, cheats, questionNAnswer.first, answer.toString()))
+            .putExtra("state", AppState(answer.toString()))
         startActivity(intent)
     }
 
@@ -114,4 +124,9 @@ class MainActivity : AppCompatActivity() {
         cheatsTextView.text = cheatsText
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("showStats", showStats)
+        super.onSaveInstanceState(outState)
+        Log.i(TAG, "onSaveInstanceState")
+    }
 }

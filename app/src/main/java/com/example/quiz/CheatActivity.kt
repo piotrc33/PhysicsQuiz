@@ -14,7 +14,6 @@ class CheatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_cheat)
 
         val state = intent.getParcelableExtra<AppState>("state")
-        val pts = state?.points // if something went wrong with getting intent
         val ans = state?.answer
         val answerText : TextView = findViewById(R.id.answer)
         answerText.text = ans
